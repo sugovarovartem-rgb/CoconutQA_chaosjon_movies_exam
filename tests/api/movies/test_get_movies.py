@@ -14,7 +14,7 @@ class TestGetMovies:
         assert isinstance(body["movies"], list)
 
     def test_get_movies_filter_by_genre_id(self, movies_api):
-        genre_id = movies_api.get_genres().json()[0]["id"]
+        genre_id = movies_api.get_genres()[0]["id"]
         response = movies_api.get_movies(params={"genreId": genre_id})
         movies = response.json()["movies"]
         assert response.status_code == 200

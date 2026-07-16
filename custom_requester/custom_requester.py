@@ -16,27 +16,24 @@ class CustomRequester:
         }
         self.session.headers.update(self.headers)
 
-    def send_request(
-            self,
-            method,
-            endpoint,
-            data=None,
-            expected_status=200,
-            need_logging=True):
-        """универсальный метод для отправки запросов"""
+    def send_request(self, method, endpoint, data=None, params=None, expected_status=200, need_logging=True):
+        if params:
+            params = {
+                key: (str(value).lower() if isinstance(value, bool) else value)
+                for key, value in params.items()
+            }
 
         url = f"{self.base_url}{endpoint}"
-        response = self.session.request(
-            method, url, json=data, headers=self.headers)
+        response = self.session.request(method, url, json=data, params=params, headers=self.headers)
         if need_logging:
             self.log_request_and_response(response)
 
-        allowed_statuses = expected_status if isinstance(
-            expected_status, (list, tuple)) else [expected_status]
+        allowed_statuses = expected_status if isinstance(expected_status, (list, tuple)) else [expected_status]
         if response.status_code not in allowed_statuses:
             raise ValueError(
                 f"Unexpected status code: {response.status_code}. Expected one of: {allowed_statuses}. "
-                f"Response body: {response.text}")
+                f"Response body: {response.text}"
+            )
         return response
 
     def _update_session_headers(self, **kwargs):

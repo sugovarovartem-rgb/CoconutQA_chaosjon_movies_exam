@@ -4,10 +4,15 @@ import requests
 from clients.auth.auth_api import AuthAPI
 from clients.movies.movies_api import MoviesAPI
 from utils.data_generator import DataGenerator
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ADMIN_CREDENTIALS = {
-    "email": "api1@gmail.com",
-    "password": "asdqwe123Q"
+    "email": os.environ["ADMIN_EMAIL"],
+    "password": os.environ["ADMIN_PASSWORD"]
 }
 
 
@@ -25,7 +30,7 @@ def movies_api():
 def create_movie(movies_api):
     """создаем фильм перед тестом и потом удаляем его"""
 
-    genre_id = movies_api.get_genres().json()[0]["id"]
+    genre_id = movies_api.get_genres()[0]["id"]
     movie_data = DataGenerator.generate_movie_data(genre_id)
     response = movies_api.create_movie(movie_data)
     created_movie = response.json()

@@ -1,5 +1,10 @@
+import requests
+
+from clients.movies.movies_api import MoviesAPI
+
+
 class TestEditMovie:
-    """тесты для patch - редактивароние фильма"""
+    """тесты для patch - редактирование фильма"""
 
     def test_edit_movie_single_field(self, movies_api, create_movie):
         """обновление одного поля price"""
@@ -8,7 +13,6 @@ class TestEditMovie:
         response = movies_api.edit_movie(
             create_movie["id"], {"price": new_price})
         body = response.json()
-        assert response.status_code == 200
         assert body["price"] == new_price
         assert body["name"] == create_movie["name"]
         assert body["location"] == create_movie["location"]
@@ -23,7 +27,6 @@ class TestEditMovie:
         }
         response = movies_api.edit_movie(create_movie["id"], update_data)
         body = response.json()
-        assert response.status_code == 200
         assert body["price"] == update_data["price"]
         assert body["description"] == update_data["description"]
         assert body["published"] == update_data["published"]
@@ -32,27 +35,22 @@ class TestEditMovie:
         """негативный, редактирование несуществующего id - 400"""
 
         nonexistent_id = 999999999
-        response = movies_api.edit_movie(
-            nonexistent_id, {"price": 100}, expected_status=404
-        )
-        assert response.status_code == 404
+        movies_api.edit_movie(
+            nonexistent_id, {
+                "price": 100}, expected_status=404)
 
     def test_edit_movie_without_auth(self, create_movie):
         """негативный, редактивароние без авторизации - 400"""
 
-        import requests
-        from clients.movies.movies_api import MoviesAPI
         anonymous_session = requests.Session()
         anonymous_movies_api = MoviesAPI(session=anonymous_session)
-        response = anonymous_movies_api.edit_movie(
+        anonymous_movies_api.edit_movie(
             create_movie["id"], {"price": 100}, expected_status=401
         )
-        assert response.status_code == 401
 
     def test_edit_movie_invalid_location(self, movies_api, create_movie):
         """негативный, location вне enum - 400"""
 
-        response = movies_api.edit_movie(
+        movies_api.edit_movie(
             create_movie["id"], {"location": "NSK"}, expected_status=400
         )
-        assert response.status_code == 400
