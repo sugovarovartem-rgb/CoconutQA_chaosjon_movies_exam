@@ -6,7 +6,6 @@ class TestGetMovieById:
 
         response = movies_api.get_movie_by_id(create_movie["id"])
         body = response.json()
-        assert response.status_code == 200
         assert body["id"] == create_movie["id"]
         assert body["name"] == create_movie["name"]
         assert body["price"] == create_movie["price"]
@@ -18,7 +17,6 @@ class TestGetMovieById:
 
         response = movies_api.get_movie_by_id(create_movie["id"])
         body = response.json()
-        assert response.status_code == 200
         assert "reviews" in body
         assert isinstance(body["reviews"], list)
 

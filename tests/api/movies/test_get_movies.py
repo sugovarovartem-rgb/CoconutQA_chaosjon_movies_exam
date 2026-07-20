@@ -5,7 +5,6 @@ class TestGetMovies:
     def test_get_movies_without_params(self, movies_api):
         response = movies_api.get_movies()
         body = response.json()
-        assert response.status_code == 200
         assert "movies" in body
         assert "count" in body
         assert "page" in body
@@ -17,14 +16,12 @@ class TestGetMovies:
         genre_id = movies_api.get_genres()[0]["id"]
         response = movies_api.get_movies(params={"genreId": genre_id})
         movies = response.json()["movies"]
-        assert response.status_code == 200
         assert len(movies) > 0
         assert all(movie["genreId"] == genre_id for movie in movies)
 
     def test_get_movies_filter_by_location(self, movies_api):
         response = movies_api.get_movies(params={"locations": ["MSK"]})
         movies = response.json()["movies"]
-        assert response.status_code == 200
         assert len(movies) > 0
         assert all(movie["location"] == "MSK" for movie in movies)
 
@@ -35,14 +32,12 @@ class TestGetMovies:
                 "minPrice": min_price,
                 "maxPrice": max_price})
         movies = response.json()["movies"]
-        assert response.status_code == 200
         assert all(min_price <= movie["price"] <=
                    max_price for movie in movies)
 
     def test_get_movies_filter_by_published(self, movies_api):
         response = movies_api.get_movies(params={"published": False})
         movies = response.json()["movies"]
-        assert response.status_code == 200
         assert all(movie["published"] is False for movie in movies)
 
     def test_get_movies_pagination(self, movies_api):
@@ -51,7 +46,6 @@ class TestGetMovies:
         response = movies_api.get_movies(
             params={"page": 2, "pageSize": page_size})
         body = response.json()
-        assert response.status_code == 200
         assert body["page"] == 2
         assert body["pageSize"] == page_size
         assert len(body["movies"]) <= page_size
@@ -61,25 +55,20 @@ class TestGetMovies:
             params={"createdAt": "desc", "pageSize": 20})
         movies = response.json()["movies"]
         dates = [movie["createdAt"] for movie in movies]
-        assert response.status_code == 200
         assert dates == sorted(dates, reverse=True)
 
     def test_get_movies_max_page_size_boundary(self, movies_api):
         response = movies_api.get_movies(params={"pageSize": 20})
-        assert response.status_code == 200
         assert response.json()["pageSize"] == 20
 
     def test_get_movies_page_size_above_limit(self, movies_api):
-        response = movies_api.get_movies(
-            params={"pageSize": 21}, expected_status=400)
-        assert response.status_code == 400
+        movies_api.get_movies(params={"pageSize": 21}, expected_status=400)
 
     def test_get_movies_page_below_minimum(self, movies_api):
-        response = movies_api.get_movies(
-            params={"page": 0}, expected_status=400)
-        assert response.status_code == 400
+        movies_api.get_movies(params={"page": 0}, expected_status=400)
 
     def test_get_movies_invalid_location_value(self, movies_api):
-        response = movies_api.get_movies(
-            params={"locations": ["NSK"]}, expected_status=400)
-        assert response.status_code == 400
+        movies_api.get_movies(
+            params={
+                "locations": ["NSK"]},
+            expected_status=400)
