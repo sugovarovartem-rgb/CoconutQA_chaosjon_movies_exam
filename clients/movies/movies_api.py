@@ -1,5 +1,5 @@
 from custom_requester.custom_requester import CustomRequester
-from constants import MOVIES_ENDPOINT
+from constants.endpoints import MOVIES_ENDPOINT
 from enums.hosts import Hosts
 
 
