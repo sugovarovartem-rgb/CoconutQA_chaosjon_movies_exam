@@ -1,5 +1,5 @@
 from custom_requester.custom_requester import CustomRequester
-from constants import LOGIN_ENDPOINT, REGISTER_ENDPOINT
+from constants.endpoints import LOGIN_ENDPOINT, REGISTER_ENDPOINT
 from enums.hosts import Hosts
 
 
@@ -22,6 +22,23 @@ class AuthAPI(CustomRequester):
     def login_user(self, login_data, expected_status=(200, 201)):
         """авторизация пользователя"""
 
+        response = self.send_request(
+            method="POST",
+            endpoint=LOGIN_ENDPOINT,
+            data=login_data,
+            expected_status=expected_status
+        )
+        access_token = response.json()["accessToken"]
+        self._update_session_headers(Authorization=f"Bearer {access_token}")
+        return response
+
+    def authenticate(self, user_creds, expected_status=(200, 201)):
+        """Аутентификация пользователя по кортежу (email, password)"""
+
+        login_data = {
+            "email": user_creds[0],
+            "password": user_creds[1]
+        }
         response = self.send_request(
             method="POST",
             endpoint=LOGIN_ENDPOINT,
