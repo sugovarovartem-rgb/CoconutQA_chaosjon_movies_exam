@@ -4,7 +4,14 @@ from pydantic import BaseModel, ConfigDict
 
 
 class GenreModel(BaseModel):
-    """Модель жанра, вложенного в ответ фильма."""
+    """Модель жанра, вложенного в ответ фильма.
+
+    id оставлен опциональным намеренно: по Swagger-схеме (GenreResponse) поле id
+    обязательное, но фактический ответ дев-стенда на всех проверенных эндпоинтах
+    (GET /movies, POST /movies, GET /movies/{id}) содержит только {"name": "..."}
+    без id. Если бэкенд когда-нибудь начнёт отдавать id, эта модель это переживёт,
+    но остаётся расхождение со Swagger, о котором стоит сообщить бэкенд-команде.
+    """
 
     model_config = ConfigDict(extra="allow")
 
@@ -24,7 +31,7 @@ class MovieResponseModel(BaseModel):
     imageUrl: str
     location: str
     published: bool
-    rating: Optional[float] = None
+    rating: float
     genreId: int
     createdAt: str
     genre: Optional[GenreModel] = None
